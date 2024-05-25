@@ -4,8 +4,10 @@ import './App.css'
 import { BrowserRouter,Route,Routes } from 'react-router-dom'
 import LoginPage from './components/account/login'
 import SignUpPage from './components/account/signup'
-import StudentPage from './components/account/studentpage'
-import TeacherPage from './components/account/teacherpage'
+import StudentPage from './components/account/student/studentpage'
+import TeacherPage from './components/account/teacher/teacherpage'
+import ApplyOutpassPage from './components/account/student/applyoutpass'
+import CheckOutpassStatusPage from './components/account/student/checkstatus'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -17,6 +19,8 @@ function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/student" element={<StudentPage/>}/>
         <Route path="/teacher" element={<TeacherPage/>}/>
+        <Route path="/apply-outpass" element={<ApplyOutpassPage/>}/>
+        <Route path="/check-outpass-status" element={<CheckOutpassStatusPage/>}/>
         </Routes>
       </BrowserRouter>
   )
