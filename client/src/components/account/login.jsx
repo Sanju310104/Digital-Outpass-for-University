@@ -1,9 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Container, CssBaseline, Typography, TextField, Button, Box } from '@mui/material';
-import { Link } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
 
 function LoginPage() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = (event) => {
+    event.preventDefault();
+
+    // Sample credentials for student and teacher
+    const studentCredentials = { username: 'student', password: 'student123' };
+    const teacherCredentials = { username: 'teacher', password: 'teacher123' };
+
+    // Check the credentials
+    if (username === studentCredentials.username && password === studentCredentials.password) {
+      navigate('/student'); // Redirect to student page
+    } else if (username === teacherCredentials.username && password === teacherCredentials.password) {
+      navigate('/teacher'); // Redirect to teacher page
+    } else {
+      alert('Invalid username or password');
+    }
+  };
+
   return (
     <div style={styles.background}>
       <Container component="main" maxWidth="xs">
@@ -12,7 +32,7 @@ function LoginPage() {
           <Typography component="h1" variant="h5" style={styles.welcomeText}>
             WELCOME - VNRVJIET
           </Typography>
-          <form style={styles.form} noValidate>
+          <form style={styles.form} noValidate onSubmit={handleLogin}>
             <TextField
               variant="outlined"
               margin="normal"
@@ -23,6 +43,8 @@ function LoginPage() {
               name="username"
               autoComplete="username"
               autoFocus
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
             <TextField
               variant="outlined"
@@ -34,6 +56,8 @@ function LoginPage() {
               type="password"
               id="password"
               autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <Button
               type="submit"
@@ -48,7 +72,7 @@ function LoginPage() {
 
           <Typography variant="body2" align="center">
             Don't have an account?{' '}
-            <Link to ="/signup" color="primary">
+            <Link to="/signup" color="primary">
               Sign Up
             </Link>
           </Typography>
