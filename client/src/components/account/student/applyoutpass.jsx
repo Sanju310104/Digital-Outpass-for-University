@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Container, CssBaseline, Typography, TextField, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
 
-function ApplyOutpassPage() {
+const ApplyOutpassPage = () => {
+  const [name, setName] = useState('');
   const [reason, setReason] = useState('');
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Handle form submission logic here
-    console.log('Submitting outpass application with reason:', reason);
-    // Example: You might submit the form data to a backend API here
+    try {
+      const response = await axios.post('http://localhost:5000/api/outpass', { name, reason });
+      console.log('Outpass application submitted:', response.data);
+      // Optionally, you can redirect or show a success message here
+    } catch (error) {
+      console.error('Error submitting outpass application:', error);
+    }
   };
 
   return (
     <Container component="main" maxWidth="md">
       <CssBaseline />
       <div style={styles.paper}>
-        <Typography component="h1" variant="h5" style={styles.header}>
+        <Typography component="h1" variant="h5">
           Apply for Outpass
         </Typography>
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -25,8 +30,19 @@ function ApplyOutpassPage() {
             margin="normal"
             required
             fullWidth
+            id="name"
+            label="Your Name"
+            name="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
             id="reason"
-            label="Reason for leaving"
+            label="Reason for Leaving"
             name="reason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
@@ -41,19 +57,10 @@ function ApplyOutpassPage() {
             Submit Application
           </Button>
         </form>
-        <Button
-          variant="contained"
-          color="secondary"
-          style={styles.cancelButton}
-          component={Link}
-          to="/student"
-        >
-          Cancel
-        </Button>
       </div>
     </Container>
   );
-}
+};
 
 const styles = {
   paper: {
@@ -66,18 +73,12 @@ const styles = {
     borderRadius: 8,
     boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
   },
-  header: {
-    marginBottom: 16,
-  },
   form: {
     width: '100%',
     marginTop: 16,
   },
   submitButton: {
     marginTop: 24,
-  },
-  cancelButton: {
-    marginTop: 12,
   },
 };
 

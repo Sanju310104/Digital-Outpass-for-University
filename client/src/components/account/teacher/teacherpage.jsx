@@ -1,51 +1,75 @@
-import React from 'react';
-import { Container, CssBaseline, Typography, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function TeacherPage() {
+const TeacherPage = () => {
+  const [outpasses, setOutpasses] = useState([]);
+
+  useEffect(() => {
+    fetchOutpasses();
+  }, []);
+
+  useEffect(() => {
+    // Save outpasses to localStorage when it changes
+    localStorage.setItem('outpasses', JSON.stringify(outpasses));
+  }, [outpasses]);
+
+  useEffect(() => {
+    // Load outpasses from localStorage on component mount
+    const storedOutpasses = localStorage.getItem('outpasses');
+    if (storedOutpasses) {
+      setOutpasses(JSON.parse(storedOutpasses));
+    }
+  }, []);
+
+  const fetchOutpasses = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/outpass', { params: { status: 'Pending' } });
+      setOutpasses(response.data);
+    } catch (error) {
+      console.error('Error fetching outpasses:', error);
+    }
+  };
+
+  const approveOutpass = async (id) => {
+    try {
+      await axios.put(`http://localhost:5000/api/outpass/${id}`, { status: 'Approved' });
+      setOutpasses(outpasses.filter(outpass => outpass._id !== id)); // Remove approved outpass from state
+    } catch (error) {
+      console.error('Error approving outpass:', error);
+    }
+  };
+
+  const rejectOutpass = async (id) => {
+    try {
+      await axios.put(`http://localhost:5000/api/outpass/${id}`, { status: 'Rejected' });
+      setOutpasses(outpasses.filter(outpass => outpass._id !== id)); // Remove rejected outpass from state
+    } catch (error) {
+      console.error('Error rejecting outpass:', error);
+    }
+  };
+
   return (
-    <Container component="main" maxWidth="md">
-      <CssBaseline />
-      <div style={styles.paper}>
-        <Typography component="h1" variant="h5" style={styles.welcomeText}>
-          Welcome, Teacher!
-        </Typography>
-        <Typography component="p" style={styles.infoText}>
-          This is the teacher dashboard where you can manage your classes, assignments, and more.
-        </Typography>
-        <Button variant="contained" color="primary" style={styles.button}>
-          <Link to="/" style={styles.link}>Go to Home</Link>
-        </Button>
-      </div>
-    </Container>
+    <div>
+      <h2>Teacher's Page - Outpass Applications</h2>
+      {outpasses.length === 0 ? (
+        <p>No pending outpass applications.</p>
+      ) : (
+        outpasses.map(outpass => (
+          <div key={outpass._id} style={{ marginBottom: '20px', padding: '10px', border: '1px solid #ccc' }}>
+            <p><strong>Name:</strong> {outpass.name}</p>
+            <p><strong>Reason:</strong> {outpass.reason}</p>
+            <p><strong>Status:</strong> {outpass.status}</p>
+            {outpass.status === 'Pending' && (
+              <div>
+                <button onClick={() => approveOutpass(outpass._id)}>Approve</button>
+                <button onClick={() => rejectOutpass(outpass._id)} style={{ marginLeft: '10px' }}>Reject</button>
+              </div>
+            )}
+          </div>
+        ))
+      )}
+    </div>
   );
-}
-
-const styles = {
-  paper: {
-    marginTop: 32,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 8,
-    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-  },
-  welcomeText: {
-    marginBottom: 16,
-  },
-  infoText: {
-    marginBottom: 32,
-    textAlign: 'center',
-  },
-  button: {
-    marginTop: 24,
-  },
-  link: {
-    color: 'white',
-    textDecoration: 'none',
-  },
 };
 
 export default TeacherPage;
