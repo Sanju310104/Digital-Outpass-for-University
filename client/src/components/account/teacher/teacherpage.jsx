@@ -3,6 +3,7 @@ import axios from 'axios';
 
 const TeacherPage = () => {
   const [outpasses, setOutpasses] = useState([]);
+  const [students, setStudents] = useState({}); // State to store student details
 
   useEffect(() => {
     fetchOutpasses();
@@ -30,10 +31,28 @@ const TeacherPage = () => {
     }
   };
 
-  const approveOutpass = async (id) => {
+  const fetchStudentDetails = async (roll_number) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/Student`, {
+        params: { roll_number }
+      });
+      const studentDetails = response.data;
+
+      // Update student details in state
+      setStudents(prevStudents => ({
+        ...prevStudents,
+        [roll_number]: studentDetails
+      }));
+    } catch (error) {
+      console.error('Error fetching student details:', error);
+    }
+  };
+
+  const approveOutpass = async (id, name) => {
     try {
       await axios.put(`http://localhost:5000/api/outpass/${id}`, { status: 'Approved' });
       setOutpasses(outpasses.filter(outpass => outpass._id !== id)); // Remove approved outpass from state
+      fetchOutpasses(); // Optionally, fetch updated list of outpasses after approval
     } catch (error) {
       console.error('Error approving outpass:', error);
     }
@@ -61,7 +80,18 @@ const TeacherPage = () => {
             <p><strong>Status:</strong> {outpass.status}</p>
             {outpass.status === 'Pending' && (
               <div>
-                <button onClick={() => approveOutpass(outpass._id)}>Approve</button>
+                {/* Display student details if already fetched */}
+                {students[outpass.name] ? (
+                  <div>
+                    <p><strong>Student Name:</strong> {students[outpass.name].name}</p>
+                    <p><strong>Student Roll Number:</strong> {students[outpass.name].roll_number}</p>
+                    <p><strong>Student Email:</strong> {students[outpass.name].email}</p>
+                    <p><strong>phn_number:</strong> {students[outpass.name].phone_number}</p>
+                  </div>
+                ) : (
+                  <button onClick={() => fetchStudentDetails(outpass.name)}>Fetch Student Details</button>
+                )}
+                <button onClick={() => approveOutpass(outpass._id, outpass.name)}>Approve</button>
                 <button onClick={() => rejectOutpass(outpass._id)} style={{ marginLeft: '10px' }}>Reject</button>
               </div>
             )}

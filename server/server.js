@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const cron = require('node-cron');
@@ -30,6 +29,31 @@ function generateToken(userId, role) {
     throw new Error('JWT_SECRET is not defined');
   }
   return jwt.sign({ userId, role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+}
+
+// Middleware function to verify JWT token and role
+function verifyTokenAndRole(req, res, next) {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(401).json({ message: 'Authorization token not provided' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    // Check if the role is 'teacher'
+    if (decoded.role !== 'teacher') {
+      return res.status(403).json({ message: 'Unauthorized access' });
+    }
+
+    // Attach user information to request object for further use if needed
+    req.user = decoded;
+
+    next(); // Move to next middleware or route handler
+  });
 }
 
 // Student Login
@@ -194,6 +218,27 @@ app.post('/api/outpass', async (req, res) => {
   }
 });
 
+
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
+});
+// Example backend route to fetch student details by roll_number
+app.get('/api/student', async (req, res) => {
+  const { roll_number } = req.query;
+  
+  try {
+    // Query the database or perform necessary logic to fetch student details
+    const student = await Student.findOne({ roll_number }); // Example using Mongoose
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Respond with student details
+    res.json(student);
+  } catch (error) {
+    console.error('Error fetching student details:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });

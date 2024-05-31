@@ -31,7 +31,7 @@ const ApplyOutpassPage = () => {
             required
             fullWidth
             id="name"
-            label="Your Name"
+            label="roll_number"
             name="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
