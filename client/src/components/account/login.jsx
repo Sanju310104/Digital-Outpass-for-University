@@ -1,26 +1,67 @@
 import React, { useState } from 'react';
 import { Container, CssBaseline, Typography, TextField, Button, Box } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
 
-    // Sample credentials for student and teacher
-    const studentCredentials = { username: 'student', password: 'student123' };
-    const teacherCredentials = { username: 'teacher', password: 'teacher123' };
+    if (!username || !password) {
+      alert('Username and password are required');
+      return;
+    }
 
-    // Check the credentials
-    if (username === studentCredentials.username && password === studentCredentials.password) {
-      navigate('/student'); // Redirect to student page
-    } else if (username === teacherCredentials.username && password === teacherCredentials.password) {
-      navigate('/teacher'); // Redirect to teacher page
-    } else {
-      alert('Invalid username or password');
+    try {
+      // Determine if the username is a roll number or employee ID
+      const isStudent = username.startsWith('2'); // Assuming roll numbers start with '2' for students
+
+      let response;
+      if (isStudent) {
+        response = await axios.post('http://localhost:5000/api/Student', {
+          roll_number: username,
+          password,
+          isStudent // Send a flag indicating if it's a student login
+        });
+      } else {
+        response = await axios.post('http://localhost:5000/api/Teacher', {
+          roll_number: username,
+          password
+        });
+      }
+      console.log('Login response:', response.data); // Log the entire response for debugging
+
+      // Assuming backend returns a token upon successful login
+      const { token, role } = response.data;
+
+      // Store the token securely (considerations apply, see notes)
+      localStorage.setItem('token', token);
+
+      // Redirect based on user role
+      if (role === 'student') {
+        navigate('/student'); // Redirect to student page
+      } else if (role === 'teacher') {
+        navigate('/teacher'); // Redirect to teacher page
+      } else {
+        alert('Invalid role'); // Handle unexpected role
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        alert(error.response.data.message);
+      } else if (error.request) {
+        // The request was made but no response was received
+        alert('Server is not responding');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        alert('Error: ' + error.message);
+      }
     }
   };
 
@@ -39,7 +80,7 @@ function LoginPage() {
               required
               fullWidth
               id="username"
-              label="User Name"
+              label="User Name (Roll Number or Employee ID)"
               name="username"
               autoComplete="username"
               autoFocus

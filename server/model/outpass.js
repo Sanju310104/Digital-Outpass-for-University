@@ -8,6 +8,11 @@ const outpassSchema = new mongoose.Schema({
     enum: ['Pending', 'Approved', 'Rejected'],
     default: 'Pending',
   },
+  createdAt: {
+    type: Date,
+    default: Date.now, // Automatically set to the current timestamp when the document is created
+  },
 });
 
 module.exports = mongoose.model('Outpass', outpassSchema);
+
