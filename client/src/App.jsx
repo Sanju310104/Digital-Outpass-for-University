@@ -8,11 +8,13 @@ import StudentPage from './components/account/student/studentpage'
 import  TeacherPage from './components/account/teacher/teacherpage'
 import ApplyOutpassPage from './components/account/student/applyoutpass'
 import OutpassStatus from './components/account/student/checkstatus'
+import { UserProvider } from './components/account/usercontext';
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
+    <UserProvider>
       <BrowserRouter>
         <Routes>
         <Route path="/" element={<LoginPage />} />
@@ -23,6 +25,7 @@ function App() {
         <Route path="/check-outpass-status" element={<OutpassStatus/>}/>
         </Routes>
       </BrowserRouter>
+    </UserProvider>
   )
 }
 

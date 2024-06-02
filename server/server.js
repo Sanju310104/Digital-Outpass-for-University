@@ -6,7 +6,7 @@ const cors = require('cors');
 const cron = require('node-cron');
 const Student = require('./model/Student.js');
 const Teacher = require('./model/Teacher.js');
-const Outpass = require('./model/Outpass.js');
+const Outpass = require('./model/outpass.js');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -83,7 +83,7 @@ app.post('/api/Student', async (req, res) => {
     const token = generateToken(student._id, 'student');
 
     console.log('Student logged in successfully:', roll_number);
-    res.json({ token, role: 'student' });
+    res.json({ token, role: 'student', roll_number: student.roll_number });
   } catch (error) {
     console.error('Student login error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -117,7 +117,7 @@ app.post('/api/Teacher', async (req, res) => {
     const token = generateToken(teacher._id, 'teacher');
 
     console.log('Teacher logged in successfully:', roll_number);
-    res.json({ token, role: 'teacher' });
+    res.json({ token, role: 'teacher', roll_number: teacher.roll_number });
   } catch (error) {
     console.error('Teacher login error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -157,11 +157,11 @@ app.get('/api/outpass', async (req, res) => {
   }
 });
 
-app.get('/api/outpass/:name', async (req, res) => {
-  const { name } = req.params;
+app.get('/api/outpass/:roll_number', async (req, res) => {
+  const roll_number = req.params.roll_number;
 
   try {
-    const outpass = await Outpass.findOne({ name });
+    const outpass = await Outpass.findOne({ roll_number });
     if (!outpass) {
       return res.status(404).json({ message: 'Outpass not found' });
     }
@@ -172,13 +172,14 @@ app.get('/api/outpass/:name', async (req, res) => {
   }
 });
 
-app.get('/api/outpass/id/:id', async (req, res) => {
+
+app.get('/api/outpass/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    const outpass = await Outpass.findById(id);
+    const outpass = await Outpass.findOne({ _id: id, status: 'Pending' });
     if (!outpass) {
-      return res.status(404).json({ message: 'Outpass not found' });
+      return res.status(404).json({ message: 'Outpass not found or not pending' });
     }
     res.json(outpass);
   } catch (err) {
@@ -206,10 +207,10 @@ app.put('/api/outpass/:id', async (req, res) => {
 });
 
 app.post('/api/outpass', async (req, res) => {
-  const { name, reason } = req.body;
+  const { roll_number, reason } = req.body;
 
   try {
-    const newOutpass = new Outpass({ name, reason, status: 'Pending' });
+    const newOutpass = new Outpass({ roll_number, reason, status: 'Pending' });
     await newOutpass.save();
     res.json(newOutpass);
   } catch (err) {
@@ -218,15 +219,14 @@ app.post('/api/outpass', async (req, res) => {
   }
 });
 
-
-
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+
 // Example backend route to fetch student details by roll_number
-app.get('/api/student', async (req, res) => {
+app.get('/api/Student', async (req, res) => {
   const { roll_number } = req.query;
-  
+
   try {
     // Query the database or perform necessary logic to fetch student details
     const student = await Student.findOne({ roll_number }); // Example using Mongoose

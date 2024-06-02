@@ -48,7 +48,7 @@ const TeacherPage = () => {
     }
   };
 
-  const approveOutpass = async (id, name) => {
+  const approveOutpass = async (id, roll_number) => {
     try {
       await axios.put(`http://localhost:5000/api/outpass/${id}`, { status: 'Approved' });
       setOutpasses(outpasses.filter(outpass => outpass._id !== id)); // Remove approved outpass from state
@@ -75,23 +75,23 @@ const TeacherPage = () => {
       ) : (
         outpasses.map(outpass => (
           <div key={outpass._id} style={{ marginBottom: '20px', padding: '10px', border: '1px solid #ccc' }}>
-            <p><strong>Name:</strong> {outpass.name}</p>
+            <p><strong>Roll Number:</strong> {outpass.roll_number}</p>
             <p><strong>Reason:</strong> {outpass.reason}</p>
             <p><strong>Status:</strong> {outpass.status}</p>
             {outpass.status === 'Pending' && (
               <div>
                 {/* Display student details if already fetched */}
-                {students[outpass.name] ? (
+                {students[outpass.roll_number] ? (
                   <div>
-                    <p><strong>Student Name:</strong> {students[outpass.name].name}</p>
-                    <p><strong>Student Roll Number:</strong> {students[outpass.name].roll_number}</p>
-                    <p><strong>Student Email:</strong> {students[outpass.name].email}</p>
-                    <p><strong>phn_number:</strong> {students[outpass.name].phone_number}</p>
+                    <p><strong>Student Name:</strong> {students[outpass.roll_number].name}</p>
+                    <p><strong>Student Roll Number:</strong> {students[outpass.roll_number].roll_number}</p>
+                    <p><strong>Student Email:</strong> {students[outpass.roll_number].email}</p>
+                    <p><strong>Student Phone Number:</strong> {students[outpass.roll_number].phone_number}</p>
                   </div>
                 ) : (
-                  <button onClick={() => fetchStudentDetails(outpass.name)}>Fetch Student Details</button>
+                  <button onClick={() => fetchStudentDetails(outpass.roll_number)}>Fetch Student Details</button>
                 )}
-                <button onClick={() => approveOutpass(outpass._id, outpass.name)}>Approve</button>
+                <button onClick={() => approveOutpass(outpass._id, outpass.roll_number)}>Approve</button>
                 <button onClick={() => rejectOutpass(outpass._id)} style={{ marginLeft: '10px' }}>Reject</button>
               </div>
             )}

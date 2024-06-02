@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const outpassSchema = new mongoose.Schema({
-  name: String,
+  roll_number: String,
   reason: String,
   status: {
     type: String,

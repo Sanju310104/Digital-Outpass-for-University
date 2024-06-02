@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Container, CssBaseline, Typography, TextField, Button } from '@mui/material';
+import { useUser } from '../usercontext';
 
 const ApplyOutpassPage = () => {
-  const [name, setName] = useState('');
+  const { user } = useUser();
   const [reason, setReason] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (!user) {
+      console.error('User is not logged in');
+      return;
+    }
+
     try {
-      const response = await axios.post('http://localhost:5000/api/outpass', { name, reason });
+      const response = await axios.post('http://localhost:5000/api/outpass', {
+        roll_number: user.rollNumber,  // Ensure user.roll_number is correct and accessible
+        reason: reason,
+      });
       console.log('Outpass application submitted:', response.data);
       // Optionally, you can redirect or show a success message here
     } catch (error) {
@@ -25,17 +35,6 @@ const ApplyOutpassPage = () => {
           Apply for Outpass
         </Typography>
         <form onSubmit={handleSubmit} style={styles.form}>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="name"
-            label="roll_number"
-            name="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
           <TextField
             variant="outlined"
             margin="normal"
