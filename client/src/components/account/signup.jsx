@@ -80,10 +80,15 @@ function SignUpPage() {
 const styles = {
   background: {
     backgroundImage: 'url(https://media.istockphoto.com/id/1501103626/photo/defocused-background-image-of-a-spacious-hallway-in-a-modern-office.webp?b=1&s=170667a&w=0&k=20&c=3HUg5TdHHWq4rmYJ7lA0Jn9koAesfCrO4lFiEaUFKuI=)',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    minHeight: '100vh',
+    backgroundSize: 'cover', // Ensure the image covers the entire container
+    backgroundPosition: 'center', // Center the image
+    backgroundRepeat: 'no-repeat', // Prevent the image from repeating
     display: 'flex',
+    position: 'absolute', // Use absolute positioning
+    top: 0, // Align to the top of the viewport
+    left: 0, // Align to the left of the viewport
+    width: '100%', // Full width of the viewport
+    height: '100vh', 
     alignItems: 'center',
     justifyContent: 'center',
   },

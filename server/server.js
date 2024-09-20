@@ -242,3 +242,45 @@ app.get('/api/Student', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+// Get teacher approval count
+app.get('/api/teachers/:roll_number', async (req, res) => {
+  try {
+    const teacher = await Teacher.findOne({ roll_number: req.params.roll_number });
+
+    if (!teacher) {
+      return res.status(404).send('Teacher not found');
+    }
+
+    res.status(200).json({ approvedCount: teacher.approvedCount });
+  } catch (error) {
+    console.error('Error fetching teacher approval count:', error);
+    res.status(500).send('Error fetching approval count');
+  }
+});
+
+// Update teacher approval count
+app.put('/api/teachers/:roll_number', async (req, res) => {
+  try {
+    const { approvedCount } = req.body;
+
+    // Check if approvedCount is valid
+    if (typeof approvedCount !== 'number' || approvedCount < 0) {
+      return res.status(400).send('Invalid approval count');
+    }
+
+    const result = await Teacher.updateOne(
+      { roll_number: req.params.roll_number },
+      { approvedCount }
+    );
+
+    if (result.nModified === 0) {
+      return res.status(404).send('Teacher not found or count not updated');
+    }
+
+    res.status(200).send('Approval count updated successfully');
+  } catch (error) {
+    console.error('Error updating approval count:', error);
+    res.status(500).send('Error updating approval count');
+  }
+});
+
