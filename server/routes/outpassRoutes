@@ -1,0 +1,41 @@
+const express = require('express');
+const router = express.Router();
+const Outpass = require('../models/Outpass'); // Ensure you have imported your Outpass model
+const crypto = require('crypto');
+
+// Function to generate a random key
+function generateRandomKey() {
+  return crypto.randomBytes(16).toString('hex'); // Generates a 32-character hexadecimal string
+}
+
+// Route to approve outpass and generate a random key
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+    const outpass = await Outpass.findById(id);
+    if (!outpass) {
+      return res.status(404).json({ message: 'Outpass not found' });
+    }
+
+    // Only generate the key if the outpass is approved
+    if (status === 'Approved') {
+      outpass.status = 'Approved';
+      outpass.random_key = generateRandomKey(); // Assign the generated key
+      await outpass.save();
+      
+      // Respond with the random key (you can use this to generate a QR code on the frontend)
+      res.json({ message: 'Outpass approved and QR code generated', random_key: outpass.random_key });
+    } else {
+      outpass.status = status;
+      await outpass.save();
+      res.json(outpass);
+    }
+  } catch (err) {
+    console.error('Error updating outpass status:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+module.exports = router;
