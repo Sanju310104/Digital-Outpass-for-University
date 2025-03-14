@@ -11,6 +11,7 @@ import OutpassStatus from './components/account/student/checkstatus'
 import { UserProvider } from './components/account/usercontext';
 import TeacherHomePage from './components/account/teacher/teacherhome'
 import OutpassHistoryPage from './components/account/teacher/outpasshistory'
+import SecurityPage from './components/account/Security/securitypage'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -27,6 +28,7 @@ function App() {
         <Route path="/check-outpass-status" element={<OutpassStatus/>}/>
         <Route path="/teacherhome" element={<TeacherHomePage/>}/>
         <Route path="/outpass-history" element={<OutpassHistoryPage/>}/>
+        <Route path="/securitydashboard" element={<SecurityPage/>}/>
         </Routes>
       </BrowserRouter>
     </UserProvider>

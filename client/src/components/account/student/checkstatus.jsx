@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Typography, Button, Card, CardContent } from '@mui/material';
 import { useUser } from '../usercontext';
@@ -10,26 +10,39 @@ const OutpassStatus = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [qrValue, setQrValue] = useState('');
-  const [showQR, setShowQR] = useState(false); // For toggling QR visibility
+  const [approvedDate, setApprovedDate] = useState('');
+  const [showQR, setShowQR] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setQrValue('');
+    }, 60000); // Reset QR code after 1 minute
+
+    return () => clearTimeout(timer);
+  }, [qrValue]);
 
   const fetchOutpassStatusByRollNumber = async (roll_number) => {
     setLoading(true);
     try {
       const response = await axios.get(`http://localhost:5000/api/outpass/${roll_number}`);
-      console.log(response.data); // Log API response
+      console.log(response.data);
       setOutpass(response.data);
 
       if (response.data.status === 'Approved') {
-        // Use roll_number and reason to generate QR code data
-        const qrData = `Outpass for Roll Number: ${response.data.roll_number}, Reason: ${response.data.reason}, Status: ${response.data.status}`;
-        setQrValue(qrData); // Set this as the QR code content
+        const timestamp = Date.now();
+        const formattedDate = new Date(timestamp).toLocaleString();
+        const qrData = `Outpass for Roll Number: ${response.data.roll_number}, Key: ${response.data.key}`;
+        
+        setQrValue(qrData);
+        setApprovedDate(formattedDate);
       } else {
-        setQrValue(''); // No QR code for non-approved statuses
+        setQrValue('');
+        setApprovedDate('');
       }
 
       setError('');
     } catch (error) {
-      console.error("Error fetching outpass:", error); // Log errors
+      console.error("Error fetching outpass:", error);
       if (error.response && error.response.status === 404) {
         setError('Outpass not found for this roll number');
       } else {
@@ -49,7 +62,7 @@ const OutpassStatus = () => {
   };
 
   const toggleQRCode = () => {
-    setShowQR(!showQR); // Toggle QR code visibility
+    setShowQR(!showQR);
   };
 
   return (
@@ -74,6 +87,9 @@ const OutpassStatus = () => {
             <Typography variant="subtitle1" gutterBottom style={styles.text}><strong>Roll Number:</strong> {outpass.roll_number}</Typography>
             <Typography variant="subtitle1" gutterBottom style={styles.text}><strong>Reason:</strong> {outpass.reason}</Typography>
             <Typography variant="subtitle1" gutterBottom style={styles.text}><strong>Status:</strong> {outpass.status}</Typography>
+            {approvedDate && (
+              <Typography variant="subtitle1" gutterBottom style={styles.text}><strong>Approved Date:</strong> {approvedDate}</Typography>
+            )}
 
             {outpass.status === 'Approved' && qrValue && (
               <>
@@ -131,7 +147,7 @@ const styles = {
     alignItems: 'center',
   },
   text: {
-    color: '#333', // Ensures the text is visible
+    color: '#333',
   },
 };
 

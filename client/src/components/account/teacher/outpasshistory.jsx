@@ -40,30 +40,13 @@ const OutpassHistoryPage = () => {
 
   return (
     <div style={styles.pageContainer}>
-      {/* Navbar */}
-      <AppBar position="fixed" sx={{ backgroundColor: '#3f51b5' }}>
+       <AppBar position="fixed" sx={{ backgroundColor: '#3f51b5' }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="h6">
-            Teacher Dashboard
-          </Typography>
+          <Typography variant="h6">Teacher Dashboard</Typography>
           <div>
-            <Button color="inherit" onClick={() => navigate('/teacherhome')}>Home</Button>
-            <Button 
-              color="inherit" 
-              onClick={() => location.pathname !== '/outpass-requests' && navigate('/outpass-requests')}
-              disabled={location.pathname === '/outpass-requests'}
-              sx={{ marginLeft: 2 }} // Add space between buttons
-            >
-              Outpass Requests
-            </Button>
-            <Button 
-              color="inherit" 
-              onClick={() => location.pathname !== '/outpass-history' && navigate('/outpass-history')}
-              disabled={location.pathname === '/outpass-history'}
-              sx={{ marginLeft: 2 }} // Add space between buttons
-            >
-              Outpass History
-            </Button>
+            <Button color="inherit" onClick={() => navigate('/teacherhome')} sx={{ marginLeft: 2 }}>Home</Button>
+            <Button color="inherit" onClick={() => navigate('/outpass-requests')} sx={{ marginLeft: 2 }}>Outpass Requests</Button>
+            <Button color="inherit" onClick={() => navigate('/outpass-history')} sx={{ marginLeft: 2 }}>Outpass History</Button>
           </div>
         </Toolbar>
       </AppBar>
@@ -115,6 +98,9 @@ const styles = {
     left: 0,
     width: '100%',
     height: '100vh',
+  },
+  text: {
+    color: '#333', // Ensures the text is visible
   },
 };
 

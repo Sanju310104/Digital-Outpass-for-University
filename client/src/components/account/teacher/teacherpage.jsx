@@ -6,33 +6,14 @@ import axios from 'axios';
 const TeacherPage = () => {
   const [outpasses, setOutpasses] = useState([]);
   const [students, setStudents] = useState({});
-  const [approvedCount, setApprovedCount] = useState(0);
-  const [buttonsDisabled, setButtonsDisabled] = useState(false);
-  const [rejectButtonsDisabled, setRejectButtonsDisabled] = useState(false);
   const navigate = useNavigate();
 
   // Retrieve the logged-in teacher's username
   const username = localStorage.getItem('username');
 
   useEffect(() => {
-    const storedApprovedCount = Number(localStorage.getItem(`approvedCount_${username}`)) || 0;
-    setApprovedCount(storedApprovedCount);
-    const isDisabled = storedApprovedCount >= 3;
-    setButtonsDisabled(isDisabled);
-    setRejectButtonsDisabled(isDisabled); // Disable reject button if count is at max
     fetchOutpasses();
-
-    // Reset approved count after 1 minute
-    const timer = setTimeout(() => {
-      setApprovedCount(0);
-      localStorage.setItem(`approvedCount_${username}`, 0); // Reset in local storage
-      setButtonsDisabled(false);
-      setRejectButtonsDisabled(false);
-    }, 60000); // 60000 milliseconds = 1 minute
-
-    // Cleanup the timeout on component unmount or if approvedCount changes
-    return () => clearTimeout(timer);
-  }, [username]);
+  }, []);
 
   const fetchOutpasses = async () => {
     try {
@@ -57,20 +38,17 @@ const TeacherPage = () => {
   };
 
   const approveOutpass = async (id) => {
-    if (approvedCount < 3) {
-      try {
-        await axios.put(`http://localhost:5000/api/outpass/${id}`, { status: 'Approved' });
-        const newCount = approvedCount + 1; // Increment approved count
-        setApprovedCount(newCount);
-        localStorage.setItem(`approvedCount_${username}`, newCount); // Store updated count with unique key
-        setButtonsDisabled(newCount >= 3);
-        setRejectButtonsDisabled(newCount >= 3); // Disable reject button if count is at max
-        setOutpasses(outpasses.filter(outpass => outpass._id !== id)); // Remove approved outpass from UI
-      } catch (error) {
-        console.error('Error approving outpass:', error);
-      }
+    console.log("Approving outpass with ID:", id); // Debugging
+  
+    try {
+      const response = await axios.put(`http://localhost:5000/api/outpass/${id}`, { status: 'Approved' });
+      console.log("✅ Outpass approved:", response.data);
+      setOutpasses(outpasses.filter(outpass => outpass._id !== id)); // Remove from UI
+    } catch (error) {
+      console.error('❌ Error approving outpass:', error.response?.data || error);
     }
   };
+  
 
   const rejectOutpass = async (id) => {
     try {
@@ -97,7 +75,6 @@ const TeacherPage = () => {
       <Container>
         <Box mt={10} sx={{ color: '#fff', textAlign: 'center' }}>
           <h2>Teacher's Page - Outpass Applications</h2>
-          <p>Approved Outpass Count: {approvedCount} / 3</p>
           {outpasses.length === 0 ? (
             <p>No pending outpass applications.</p>
           ) : (
@@ -120,10 +97,10 @@ const TeacherPage = () => {
                       Fetch Student Details
                     </Button>
                   )}
-                  <Button onClick={() => approveOutpass(outpass._id)} variant="contained" color="primary" disabled={buttonsDisabled}>
+                  <Button onClick={() => approveOutpass(outpass._id)} variant="contained" color="primary">
                     Approve
                   </Button>
-                  <Button onClick={() => rejectOutpass(outpass._id)} variant="contained" color="secondary" style={{ marginLeft: '10px' }} disabled={rejectButtonsDisabled}>
+                  <Button onClick={() => rejectOutpass(outpass._id)} variant="contained" color="secondary" style={{ marginLeft: '10px' }}>
                     Reject
                   </Button>
                 </div>
@@ -161,4 +138,4 @@ const styles = {
   },
 };
 
-export default TeacherPage;
+export default TeacherPage; 

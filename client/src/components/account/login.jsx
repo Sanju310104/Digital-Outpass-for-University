@@ -5,10 +5,10 @@ import axios from 'axios';
 import { useUser } from './usercontext';
 
 function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const { setUser } = useUser(); // Get setUser from UserContext
-  const navigate = useNavigate();
+  const [username, setUsername] = useState(''); // User's ID (roll number/employee ID)
+  const [password, setPassword] = useState(''); // Password
+  const { setUser } = useUser(); // Set user in context
+  const navigate = useNavigate(); // Navigation after successful login
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -19,15 +19,25 @@ function LoginPage() {
     }
 
     try {
-      const isStudent = username.startsWith('2'); // Assuming roll numbers start with '2' for students
-
       let response;
+
+      // Determine if the user is a student, teacher, or security officer based on ID pattern
+      const isStudent = username.startsWith('2'); // Assuming student roll numbers start with '2'
+      const isSecurityOfficer = username.startsWith('S'); // Assuming security officer IDs start with 'S'
+
+      // Send login request based on user type
       if (isStudent) {
         response = await axios.post('http://localhost:5000/api/Student', {
           roll_number: username,
           password,
         });
-      } else {
+      } else if (isSecurityOfficer) {
+        response = await axios.post('http://localhost:5000/api/Security', {
+          roll_number: username,
+          password,
+        });
+      }
+      else {
         response = await axios.post('http://localhost:5000/api/Teacher', {
           roll_number: username,
           password,
@@ -37,23 +47,24 @@ function LoginPage() {
       console.log('Login response:', response.data);
 
       const { token, role } = response.data;
-      localStorage.setItem('token', token);
+      localStorage.setItem('token', token); // Store the token in localStorage
 
-      setUser({ rollNumber: username, role }); // Set user context
+      setUser({ rollNumber: username, role }); // Set user role in context
 
+      // Redirect based on the role
       if (role === 'student') {
         navigate('/student'); // Redirect to student page
       } else if (role === 'teacher') {
         navigate('/teacherhome'); // Redirect to teacher page
+      } else if (role === 'security') {
+        navigate('/securitydashboard'); // Redirect to security officer dashboard
       } else {
-        alert('Invalid role'); // Handle unexpected role
+        alert('Invalid role');
       }
     } catch (error) {
       console.error('Login failed:', error);
       if (error.response) {
-        alert(error.response.data.message);
-      } else if (error.request) {
-        alert('Server is not responding');
+        alert(error.response.data.message); // Show backend error message
       } else {
         alert('Error: ' + error.message);
       }
@@ -105,13 +116,6 @@ function LoginPage() {
               Log In
             </Button>
           </form>
-
-          <Typography variant="body2" align="center">
-            Don't have an account?{' '}
-            <Link to="/signup" color="primary">
-              Sign Up
-            </Link>
-          </Typography>
         </div>
         <Box mt={8}>
           <Typography variant="body2" color="textSecondary" align="center">
@@ -131,15 +135,15 @@ function LoginPage() {
 const styles = {
   background: {
     backgroundImage: 'url(https://media.istockphoto.com/id/1501103626/photo/defocused-background-image-of-a-spacious-hallway-in-a-modern-office.webp?b=1&s=170667a&w=0&k=20&c=3HUg5TdHHWq4rmYJ7lA0Jn9koAesfCrO4lFiEaUFKuI=)',
-    backgroundSize: 'cover', // Ensure the image covers the entire container
-    backgroundPosition: 'center', // Center the image
-    backgroundRepeat: 'no-repeat', // Prevent the image from repeating
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
     display: 'flex',
-    position: 'absolute', // Use absolute positioning
-    top: 0, // Align to the top of the viewport
-    left: 0, // Align to the left of the viewport
-    width: '100%', // Full width of the viewport
-    height: '100vh', 
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100vh',
     alignItems: 'center',
     justifyContent: 'center',
   },
