@@ -43,14 +43,14 @@ The **Digital Outpass System** is a MERN stack-based web application that automa
 
 3. Start the backend server:
    ```sh
-   cd backend
+   cd server
    npm start
    ```
 
 4. Start the frontend:
    ```sh
-   cd frontend
-   npm start
+   cd client
+   npm run
    ```
 
 5. Open the app in your browser at `http://localhost:3000`.
