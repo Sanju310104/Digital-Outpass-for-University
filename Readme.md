@@ -32,7 +32,7 @@ The **Digital Outpass System** is a MERN stack-based web application that automa
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/Mohdsohail098/DigitalOutpass.git
+   git clone https://github.com/Sanju310104/Digital-Outpass-for-University.git
    cd DigitalOutpass
    ```
 
